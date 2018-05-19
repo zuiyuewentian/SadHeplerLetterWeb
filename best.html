@@ -89,12 +89,12 @@
                                 <div class="card-header">
                                     <h3 class="card-title">{{item.title}}</h3>
                                     <div class="card-options">
-                                        <a href="#" class="card-options-collapse" data-toggle="card-collapse">
+                                        <!-- <a href="#" class="card-options-collapse" data-toggle="card-collapse">
                                             <i class="fe fe-chevron-up"></i>
                                         </a>
                                         <a href="#" class="card-options-remove" data-toggle="card-remove">
                                             <i class="fe fe-x"></i>
-                                        </a>
+                                        </a> -->
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -105,6 +105,9 @@
                                     <div class="alert alert-warning" role="alert">
                                         <h4>回复：</h4>
                                         <div v-html="item.reply"></div>
+                                        <div class="tags">
+                                            <span class="tag">回复于： {{item.rdate}}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-footer">
@@ -120,7 +123,15 @@
                                 </div>
                             </div>
                         </div>
-
+                    </div>
+                    <div id="loadDiv" style="text-align: center;">
+                        <img src="demo/loading.gif" height="20px;"></img>
+                        <span> 正在加载数据...</span>
+                        <p></p>
+                    </div>
+                    <div id="loadEndDiv" style="text-align: center;display: none;">
+                        <span>没有更多数据了...</span>
+                        <p></p>
                     </div>
                 </div>
             </div>
@@ -170,6 +181,9 @@
         var nebPay = new NebPay();
         var serialNumber;
         var AllCount = 0;//总数量
+        var pageIndex = 1;//当前页
+        var pageSize = 5;//每页显示数量
+        var pageAll = 0;//总页数
 
         window.onload = async function () {
             loadAllCountInfo();
@@ -215,6 +229,11 @@
             var gas_limit = "2000000";
             var callFunction = "GetAll";
             console.log(AllCount);
+            if (parseInt(AllCount % pageSize) == 0) {
+                pageAll = parseInt(AllCount / pageSize);
+            } else {
+                pageAll = parseInt(AllCount / pageSize) + 1;
+            }
             var callArgs = "[\"" + AllCount + "\",\"0\"]";
             var contract = {
                 "function": callFunction,
@@ -253,19 +272,48 @@
                 }
             }
 
+            infoData.sort(compareDesc("Praise"));
+            $("#loadDiv").hide();
+
             new Vue({
                 el: '#app',
                 data: {
-                    infos: infoData
+                    infos: pagination(pageIndex, pageSize, infoData)
+                },
+                mounted: function () {
+                    //相关操作
+                },
+                created() {
+                    var _this = this;
+                    $(window).scroll(function () {
+                        let scrollTop = $(this).scrollTop()
+                        let scrollHeight = $(document).height()
+                        let windowHeight = $(this).height()
+                        if (scrollTop + windowHeight === scrollHeight) {
+                            console.log("pageIndex" + pageIndex);
+                            if (pageIndex >= pageAll) {
+                                $("#loadEndDiv").show();
+                                return;
+                            }
+                            $("#loadDiv").show();
+                            setTimeout(function () {
+                                pageIndex++;
+                                _this.infos = _this.infos.concat(pagination(pageIndex, pageSize, infoData));
+                                $("#loadDiv").hide();
+                            }, 2000);
+                        }
+                    })
                 }
             })
         }
 
+
+
         //点赞
         function pariseClick(a) {
-            var postmark=a.getAttribute('data')
+            var postmark = a.getAttribute('data')
             if (!$('#spanParise').hasClass("tag-success")) {
-               // $('#spanParise').attr("tag-success");
+                // $('#spanParise').attr("tag-success");
                 $(".spanParise").removeClass("tag-addon").addClass("tag-success");
                 toParise(postmark);
             }

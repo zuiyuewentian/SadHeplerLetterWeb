@@ -127,6 +127,15 @@
                     </tr>
                   </tbody>
                 </table>
+                <div id="loadDiv" style="text-align: center;">
+                  <img src="demo/loading.gif" height="20px;"></img>
+                  <span> 正在加载数据...</span>
+                  <p></p>
+                </div>
+                <div id="loadEndDiv" style="text-align: center;display: none;">
+                  <span>没有更多数据了...</span>
+                  <p></p>
+                </div>
               </div>
             </div>
           </div>
@@ -180,6 +189,9 @@
     var nebPay = new NebPay();
     var serialNumber;
     var AllCount = 0;//总数量
+    var pageIndex = 1;//当前页
+    var pageSize = 20;//每页显示数量
+    var pageAll = 0;//总页数
 
     window.onload = async function () {
       loadAllCountInfo();
@@ -260,10 +272,42 @@
         }
       }
 
+      if (parseInt(index % pageSize) == 0) {
+        pageAll = parseInt(index / pageSize);
+      } else {
+        pageAll = parseInt(index / pageSize) + 1;
+      }
+      
+      console.log("pageAll:" + pageAll);
+      $("#loadDiv").hide();
       new Vue({
         el: '#app',
         data: {
-          infos: infoData
+          infos: pagination(pageIndex, pageSize, infoData)
+        },
+        mounted: function () {
+          //相关操作
+        },
+        created() {
+          var _this = this;
+          $(window).scroll(function () {
+            let scrollTop = $(this).scrollTop()
+            let scrollHeight = $(document).height()
+            let windowHeight = $(this).height()
+            if (scrollTop + windowHeight === scrollHeight) {
+              console.log("pageIndex" + pageIndex);
+              if (pageIndex >= pageAll) {
+                $("#loadEndDiv").show();
+                return;
+              }
+              $("#loadDiv").show();
+              setTimeout(function () {
+                pageIndex++;
+                _this.infos = _this.infos.concat(pagination(pageIndex, pageSize, infoData));
+                $("#loadDiv").hide();
+              }, 2000);
+            }
+          })
         }
       })
     }

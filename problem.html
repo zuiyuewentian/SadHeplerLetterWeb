@@ -191,8 +191,16 @@
         ShowDiv("内容不能为空！");
         return;
       }
+      if (title.length < 5) {
+        ShowDiv("问题字数太短！");
+        return;
+      }
       if (title.length > 100) {
         ShowDiv("问题字数太长！");
+        return;
+      }
+      if (content.length < 5) {
+        ShowDiv("内容字数太短！");
         return;
       }
       if (content.length > 10000) {

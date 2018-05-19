@@ -62,3 +62,37 @@ function getRequest() {
 function getNoRepeat(s) {
     return s.sort().join(",,").replace(/(,|^)([^,]+)(,,\2)+(,|$)/g, "$1$2$4").replace(/,,+/g, ",").replace(/,$/, "").split(",");
 } 
+
+//分页
+function pagination(pageNo, pageSize, array) {  
+    var offset = (pageNo - 1) * pageSize;  
+    return (offset + pageSize >= array.length) ? array.slice(offset, array.length) : array.slice(offset, offset + pageSize);  
+}  
+
+//比较正序
+var compare = function (prop) {
+    return function (obj1, obj2) {
+        var val1 = obj1[prop];
+        var val2 = obj2[prop];if (val1 < val2) {
+            return -1;
+        } else if (val1 > val2) {
+            return 1;
+        } else {
+            return 0;
+        }            
+    } 
+}
+//比较倒序
+var compareDesc = function (prop) {
+    return function (obj1, obj2) {
+        var val1 = obj1[prop];
+        var val2 = obj2[prop];
+        if (val2 < val1) {
+            return -1;
+        } else if (val2 > val1) {
+            return 1;
+        } else {
+            return 0;
+        }            
+    } 
+}

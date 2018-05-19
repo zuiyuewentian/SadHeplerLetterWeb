@@ -86,7 +86,9 @@
           <div class="col-12">
             <div class="col-md-12">
               <div class="alert alert-primary">你是否有生活工作学习上的疑惑、问题?
-                <a href="problem.html" class="alert-link">来这里提出</a> 将会得到更好的解答。</div>
+                <a href="problem.html" class="alert-link">来这里提出</a> 将会得到更好的解答。发帖回复点赞需使用chrome浏览器先下载安装
+                <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">星云链钱包</a>插件
+              </div>
               <div class="row">
 
                 <div class="col-sm-6 col-lg-3">
@@ -118,7 +120,7 @@
                             <small>赞同者</small>
                           </a>
                         </h4>
-                        <small class="text-muted">获得最多认同答案</small>
+                        <small class="text-muted">获得认同的答案</small>
                       </div>
                     </div>
                   </div>
@@ -175,14 +177,17 @@
                       </tr>
                     </thead>
                     <tbody id="app">
-                      <tr v-for="item in infos">
+                      <tr id="infotr" v-for="item in infos">
                         <!-- <td>
                           <span class="text-muted">{{item.postmark}}</span>
                         </td> -->
                         <td>
-                          <a v-bind:href="'invoice.html?postmark='+item.postmark" class="text-inherit" >{{item.title.substr(0,30)}}</a>
+                          <a v-bind:href="'invoice.html?postmark='+item.postmark" class="text-inherit">{{item.title.substr(0,30)}}</a>
                         </td>
-                        <td>
+                        <td v-if="item.anonymous=='realName'">
+                          {{item.author}}
+                        </td>
+                        <td v-if="item.anonymous=='anonymous'">
                           {{item.author}}
                         </td>
                         <td>
@@ -202,6 +207,15 @@
                       </tr>
                     </tbody>
                   </table>
+                  <div id="loadDiv" style="text-align: center;">
+                    <img src="demo/loading.gif" height="20px;"></img>
+                    <span> 正在加载数据...</span>
+                    <p></p>
+                  </div>
+                  <div id="loadEndDiv" style="text-align: center;display: none;">
+                    <span>没有更多数据了...</span>
+                    <p></p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -255,6 +269,9 @@
     var nebPay = new NebPay();
     var serialNumber;
     var AllCount = 0;//总数量
+    var pageIndex = 1;//当前页
+    var pageSize = 10;//每页显示数量
+    var pageAll = 0;//总页数
 
     window.onload = async function () {
       loadAllCountInfo();
@@ -300,6 +317,12 @@
       var gas_limit = "2000000";
       var callFunction = "GetAll";
       console.log(AllCount);
+      if (parseInt(AllCount % pageSize) == 0) {
+        pageAll = parseInt(AllCount / pageSize);
+      } else {
+        pageAll = parseInt(AllCount / pageSize) + 1;
+      }
+      console.log("pageAll:" + pageAll);
       var callArgs = "[\"" + AllCount + "\",\"0\"]";
       var contract = {
         "function": callFunction,
@@ -357,14 +380,39 @@
       //回复数量
       $("#replyNumber").text(replyCount);
 
+      $("#loadDiv").hide();
+      console.log("pageIndex"+pageIndex);
       new Vue({
         el: '#app',
         data: {
-          infos: infoData
+          infos: pagination(pageIndex, pageSize, infoData)
+        },
+        mounted: function () {
+          //相关操作
+        },
+        created() {
+          var _this = this;
+          $(window).scroll(function () {
+            let scrollTop = $(this).scrollTop()
+            let scrollHeight = $(document).height()
+            let windowHeight = $(this).height()
+            if (scrollTop + windowHeight === scrollHeight) {
+              console.log("pageIndex"+pageIndex);
+              if (pageIndex >= pageAll) {
+                $("#loadEndDiv").show();
+                return;
+              }
+              $("#loadDiv").show();
+              setTimeout(function () {
+                pageIndex++;
+                _this.infos = _this.infos.concat(pagination(pageIndex, pageSize, infoData));
+                $("#loadDiv").hide();
+              }, 2000);
+            }
+          })
         }
       })
     }
-
   </script>
 </body>
 
