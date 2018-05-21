@@ -102,7 +102,7 @@
                       <th>回复</th>
                     </tr>
                   </thead>
-                  <tbody id="app">
+                  <tbody id="app" style="display: none;">
                     <tr v-for="item in infos">
                       <td>
                         <a v-bind:href="'invoice.html?postmark='+item.postmark" class="text-inherit">{{item.title.substr(0,30)}}</a>
@@ -280,6 +280,7 @@
       
       console.log("pageAll:" + pageAll);
       $("#loadDiv").hide();
+      $("#app").show();
       new Vue({
         el: '#app',
         data: {

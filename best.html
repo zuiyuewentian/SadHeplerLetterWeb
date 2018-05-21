@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div class="my-3 my-md-5">
-                <div class="container" id="app">
+                <div class="container" id="app" style="display: none;">
                     <div class="row" v-for="item in infos">
                         <div class="col-md-12 col-xl-12">
                             <div class="card">
@@ -97,7 +97,7 @@
                                         </a> -->
                                     </div>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body" >
                                     <div class="alert alert-secondary" role="alert">
                                         <h4>问题详情：</h4>
                                         <div v-html="item.content"></div>
@@ -134,6 +134,11 @@
                         <p></p>
                     </div>
                 </div>
+            </div>
+            <div id="loadingDiv" style="text-align: center;">
+                <img src="demo/loading.gif" height="20px;"></img>
+                <span> 正在加载数据...</span>
+                <p></p>
             </div>
         </div>
         <footer class="footer">
@@ -274,7 +279,8 @@
 
             infoData.sort(compareDesc("Praise"));
             $("#loadDiv").hide();
-
+            $("#loadingDiv").hide();
+            $("#app").show();
             new Vue({
                 el: '#app',
                 data: {
